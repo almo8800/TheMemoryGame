@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21G72" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="GameTime" representedClassName="GameTime" syncable="YES" codeGenerationType="class">
-        <attribute name="time" attributeType="String"/>
+    <entity name="Game" representedClassName="Game" syncable="YES" codeGenerationType="class">
+        <attribute name="time" optional="YES"/>
     </entity>
     <elements>
-        <element name="GameTime" positionX="-63" positionY="-18" width="128" height="44"/>
+        <element name="Game" positionX="-63" positionY="-18" width="128" height="44"/>
     </elements>
 </model>
