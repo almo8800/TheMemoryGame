@@ -8,21 +8,22 @@
 import Foundation
 import UIKit
 import Photos
+import AVFoundation
 
 enum HardLevel: Int {
-    case four = 4
-    case five = 5
+    case fourXfour = 16
+    case fourXsix = 24
     
     static func allValues() -> [String] {
-        return [four, five].map({$0.description})
+        return [fourXfour, fourXsix].map({$0.description})
     }
     
     public var description: String {
         switch self {
-        case .four:
-            return "four"
-        case .five:
-            return "five"
+        case .fourXfour:
+            return "4x4"
+        case .fourXsix:
+            return "4x6"
         }
     }
     
@@ -33,46 +34,45 @@ class CardsGenerator {
     var assetsFromLibrary: [PHAsset] = []
     var photosFromLibrary: [UIImage] = []
     
-    static let shared = CardsGenerator(level: HardLevel.four)
+    var thumbnails: [UIImage] = []
     
-    private init(level: HardLevel) {
+    var cardsNumber: Int = 16 {
+        didSet {
+            print("Cardsnumber now is \(cardsNumber)")
+            fillArrayForGame()
+            print(arrayForGame.count)
+        }
+    }
+    
+    static let shared = CardsGenerator()
+    
+    private init() {
         fetchAssetsFromDevice()
         convertAssetsToPhotos()
-        fillArrayForGame(level: level.rawValue)
+        fillArrayForGame()
+        
     }
     
     var arrayForGame: [UIImage] = []
+
     
-    class CardA {
-        var card: Card!
-        var index: Int!
-    }
-    
-    func fillArrayForGame(level: Int) {
+    func fillArrayForGame() {
        var array: [UIImage] = []
-       let numberOfCards = level * level
+       let numberOfCards = cardsNumber
        
-        
-        while array.count != numberOfCards {
-            if let element = photosFromLibrary.randomElement() {
-                if !array.contains(element) {
-                    array.append(element)
-                    array.append(element)
-                }
-                else {
-                    print("Double photo detected")
-                }
-            }
-        }
-        
-        
-//        for _ in 0...maxIndex {
-//            if let element = photosFromLibrary.randomElement() {
-//                array.append(element)
-//                array.append(element)
-//            }
-//        }
-        
+    
+            while array.count != numberOfCards {
+                 if let element = photosFromLibrary.randomElement() {
+                     if !array.contains(element) {
+                         array.append(element)
+                         array.append(element)
+                     }
+                     else {
+                         print("Double photo detected")
+                     }
+                 }
+             }
+      
         array.shuffle()
         arrayForGame = array
         print("HERE IT IS")
@@ -85,31 +85,25 @@ class CardsGenerator {
         
         let semaphore = DispatchSemaphore(value: 0)
         
-    
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
-            
             if status == .authorized {
-                
                 let fetchOptions = PHFetchOptions()
+                fetchOptions.predicate = NSPredicate(format: "mediaType == %d || mediaType == %d",                                           PHAssetMediaType.image.rawValue,
+                                                     PHAssetMediaType.video.rawValue)
                 fetchOptions.fetchLimit = 100
                 
-                
-                let assets = PHAsset.fetchAssets(with: PHAssetMediaType.image, options: fetchOptions)
+                let assets = PHAsset.fetchAssets(with: fetchOptions)
                 print(assets.count)
                 assets.enumerateObjects { (object, _, _) in
                     print(object)
                     self?.assetsFromLibrary.append(object)
                 }
             }
-            
-           
-            
             semaphore.signal()
-            
         }
-        
         semaphore.wait()
     }
+    
     
     func convertAssetsToPhotos() {
         print("photos from assets is \(photosFromLibrary.count)")
@@ -127,12 +121,7 @@ class CardsGenerator {
         }
         
         print("photos from assests is \(photosFromLibrary.count)")
-        
- 
-       
     
-        
     }
-    
 }
 

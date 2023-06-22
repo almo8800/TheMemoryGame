@@ -12,26 +12,21 @@ class CardsCollectionViewCell: UICollectionViewCell {
     static let reuseId = "CardsCollectionViewCell"
     
     var numberLabel = UILabel()
-
+    
     var openImageView = UIImageView()
     var closeImageView = UIImageView(image: UIImage(named: "iphone_pattern"))
-
+    
     
     var isFlipped: Bool!
     var isMatched: Bool!
     var isActive: Bool = true
-   
-    
-    
-    //var card: Card?
     
     func configureCell(_ image: UIImage) {
-       // self.card = card
         
         self.isFlipped = false
         self.isMatched = false
         self.isActive = true
-     
+        
         openImageView.image = image
         openImageView.alpha = 1.0
         
@@ -89,9 +84,9 @@ class CardsCollectionViewCell: UICollectionViewCell {
         closeImageView.contentMode = .scaleToFill
         
         setCellLayout()
-
+        
     }
- 
+    
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -99,38 +94,6 @@ class CardsCollectionViewCell: UICollectionViewCell {
     
     func setCellLayout() {
         
-        
-        
-//        self.contentView.layer.cornerRadius = 8.0
-//        self.contentView.layer.borderWidth = 1.0
-//        self.contentView.layer.borderColor = UIColor.clear.cgColor
-//        self.contentView.layer.masksToBounds = true
-//
-//        self.layer.shadowColor = UIColor.black.cgColor
-//        self.layer.shadowOffset = CGSize(width: 0, height: 2.0)
-//        self.layer.shadowRadius = 2.0
-//        self.layer.shadowOpacity = 0.5
-//        self.layer.masksToBounds = false
-//        self.layer.shadowPath = UIBezierPath(roundedRect: self.bounds, cornerRadius: self.contentView.layer.cornerRadius).cgPath
-//    }
+    }
     
-}
-
-
-
-//extension CardsCollectionViewCell {
-//
-//
-//    self.contentView.layer.cornerRadius = 2.0
-//    self.contentView.layer.borderWidth = 1.0
-//    self.contentView.layer.borderColor = UIColor.clear.cgColor
-//    self.contentView.layer.masksToBounds = true
-//
-//    self.layer.shadowColor = UIColor.black.cgColor
-//    self.layer.shadowOffset = CGSize(width: 0, height: 2.0)
-//    self.layer.shadowRadius = 2.0
-//    self.layer.shadowOpacity = 0.5
-//    self.layer.masksToBounds = false
-//    self.layer.shadowPath = UIBezierPath(roundedRect: self.bounds, cornerRadius: self.contentView.layer.cornerRadius).cgPath
-//}
 }

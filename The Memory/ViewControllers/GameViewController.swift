@@ -82,7 +82,7 @@ class GameViewController: UIViewController, GameVCDelegate {
         resetTimer()
     
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3) {
-            CardsGenerator.shared.fillArrayForGame(level: HardLevel.four.rawValue)
+            CardsGenerator.shared.fillArrayForGame()
             self.collectionView.imageArray = CardsGenerator.shared.arrayForGame
             
             print("new game array \(self.collectionView.imageArray)")
@@ -214,6 +214,7 @@ class GameViewController: UIViewController, GameVCDelegate {
     
     deinit {
         print("GameViewController DEINIT")
+        dismiss(animated: true)
     }
 }
 

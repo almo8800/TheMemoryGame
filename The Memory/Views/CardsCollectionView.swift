@@ -37,7 +37,6 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
         register(CardsCollectionViewCell.self, forCellWithReuseIdentifier: "CardsCollectionViewCell")
         
         translatesAutoresizingMaskIntoConstraints = false
-        //layout.minimumLineSpacing = 10
         
         showsHorizontalScrollIndicator = false
         showsVerticalScrollIndicator = false
@@ -48,7 +47,7 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 16
+        return CardsGenerator.shared.arrayForGame.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -63,8 +62,6 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
         cell.openImageView.layer.cornerRadius = 6
         cell.openImageView.layer.masksToBounds = true
         cell.layer.cornerRadius = 10
-       // cell.layer.masksToBounds = true
-        
         
         cell.layer.shadowColor = UIColor.black.cgColor
         cell.layer.shadowOffset = CGSize(width: 1, height: 2.0)
@@ -92,9 +89,7 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
             
             cell.flip()
             cell.isFlipped = true
-            //cardArray[indexPath.row].isFlipped = true
-            
-            // определяем первая это карта или вторая
+        
             if firstFlippedCardIndex == nil {
                 
                 firstFlippedCardTag = cell.tag
@@ -120,9 +115,6 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
         let indexPathOfTwoCell = IndexPath(row: secondFlippedCardTag, section: 0)
         let cardTwoCell = self.cellForItem(at: indexPathOfTwoCell) as? CardsCollectionViewCell
 
-//        let cardOne = cardArray[firstFlippedCardTag!.row]
-//        let cardTwo = cardArray[secondFlippedCardIndex.row]
-        
         let cardOneName = cardOneCell?.numberLabel.text
         let cardTwoName = cardTwoCell?.numberLabel.text
 
@@ -134,27 +126,22 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
            cardOneCell?.isMatched = true
            cardTwoCell?.isMatched = true
             
-           //remove the cells
+        
            cardOneCell?.remove()
            cardTwoCell?.remove()
             
             cardOneCell?.isActive = false
             cardTwoCell?.isActive = false
-//        
-            
+
            firstFlippedCardTag = nil
            firstFlippedCardIndex = nil
             
             openCards += 2
             print("open cards = \(openCards)")
             
-            if openCards == 16 {
+            if openCards == imageArray.count {
                 gameVCdelegate?.endGame()
-                
             }
-            
-            
-            
        } else {
            
            cardOneCell?.isFlipped = false
@@ -172,9 +159,19 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
 
-
+        
         let width = collectionView.frame.width / 5 + 10
-        let itemSize = CGSize(width: width, height: width * 1.2)
+        var height: CGFloat = 0
+        
+        if collectionView.numberOfItems(inSection: 0) == 16 {
+            height = width * 1.2
+        } else {
+            height = width
+            
+        }
+        
+        let itemSize = CGSize(width: width, height: height)
+
 
         return itemSize
     }
@@ -207,5 +204,3 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
 
 }
 
-// reload data для определенных индексов
-// difable data source

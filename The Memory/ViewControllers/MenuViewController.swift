@@ -10,36 +10,18 @@ import CoreData
 
 class MenuViewController: UIViewController {
     
-    var timeArray: [GameTime] = []
-    var levelHigh: HardLevel = HardLevel.four
+    var cardsGenerator: CardsGenerator!
     
-    var deleteButton = UIButton()
+    var numberOfCardsinGame = 16 {
+        didSet {
+            CardsGenerator.shared.cardsNumber = numberOfCardsinGame
+        }
+    }
     
-    var firstTimeLabel: UILabel = {
+    var levelTitle: UILabel = {
         let label = UILabel()
-        label.text = "Label 1"
+        label.text = "Gameboard size"
         return label
-    }()
-    
-    var secondTimeLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Label 2"
-        return label
-    }()
-    
-    var thirdsTimeLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Label 3"
-        return label
-    }()
-    
-    lazy var startButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("START GAME", for: .normal)
-        button.setTitleColor(UIColor.black, for: .normal)
-        button.backgroundColor = .systemGray
-        button.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
-        return button
     }()
     
     lazy var segmentedControl: UISegmentedControl = {
@@ -49,6 +31,56 @@ class MenuViewController: UIViewController {
         return view
     }()
     
+    lazy var startButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("START GAME", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        button.backgroundColor = #colorLiteral(red: 0.9669273496, green: 0.7500750422, blue: 0.9268592, alpha: 1)
+        button.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
+        button.layer.cornerRadius = 10
+        return button
+    }()
+    
+
+ 
+    
+    var gameStatLabel: UILabel = {
+        let label = UILabel()
+        label.text = "TOP 3 RESULTS"
+        label.font = UIFont.boldSystemFont(ofSize: 18)
+        return label
+    }()
+    
+    var firstTimeLabel: UILabel = {
+        let label = UILabel()
+        label.text = "play more games"
+        
+        return label
+    }()
+    
+    var secondTimeLabel: UILabel = {
+        let label = UILabel()
+        label.text = "play more games"
+        return label
+    }()
+    
+    var thirdsTimeLabel: UILabel = {
+        let label = UILabel()
+        label.text = "play more games"
+        return label
+    }()
+    
+    var deleteButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .blue
+        button.setTitle("DELETE", for: .normal)
+        button.addTarget(self, action: #selector(deleteAllStats), for: .touchUpInside)
+       
+        return button
+    }()
+    
+    var timeArray: [GameTime] = []
     
     
     @objc func startButtonTapped() {
@@ -60,9 +92,9 @@ class MenuViewController: UIViewController {
     @objc func levelChanged() {
         switch segmentedControl.selectedSegmentIndex {
         case 0:
-            levelHigh = HardLevel.four
+           numberOfCardsinGame = HardLevel.fourXfour.rawValue
         case 1:
-            levelHigh = HardLevel.five
+           numberOfCardsinGame = HardLevel.fourXsix.rawValue
         default:
             print("level high default")
         }
@@ -73,25 +105,18 @@ class MenuViewController: UIViewController {
         
         view.backgroundColor = .systemGray5
         
-        view.addSubview(segmentedControl)
-        segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+
         view.addSubview(startButton)
         startButton.translatesAutoresizingMaskIntoConstraints = false
         
-        addLabels()
+        addLevelStack()
+        addStatiscticStack()
         
         NSLayoutConstraint.activate([
-        
-            segmentedControl.heightAnchor.constraint(equalToConstant: 30),
-            segmentedControl.widthAnchor.constraint(equalToConstant: 100),
-            segmentedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 150),
-            segmentedControl.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            
-            startButton.topAnchor.constraint(equalTo: segmentedControl.topAnchor, constant: 40),
+            startButton.topAnchor.constraint(equalTo: thirdsTimeLabel.topAnchor, constant: 80),
             startButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             startButton.heightAnchor.constraint(equalToConstant: 50),
             startButton.widthAnchor.constraint(equalToConstant: 200)
-        
         ])
         
         fetchStat()
@@ -102,12 +127,26 @@ class MenuViewController: UIViewController {
 
     }
     
-    private func addLabels(){
-//        view.addSubview(firstTimeLabel)
-//        view.addSubview(secondTimeLabel)
-//        view.addSubview(thirdsTimeLabel)
+    private func addLevelStack() {
+        let levelStackView = UIStackView(arrangedSubviews: [levelTitle, segmentedControl])
+        levelStackView.axis = .horizontal
+        levelStackView.spacing = 10
+        levelStackView.alignment = .center
         
-        let labelsStackView = UIStackView(arrangedSubviews: [firstTimeLabel, secondTimeLabel, thirdsTimeLabel, deleteButton])
+        view.addSubview(levelStackView)
+        levelStackView.translatesAutoresizingMaskIntoConstraints = false
+        levelStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        levelStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 150).isActive = true
+        
+        segmentedControl.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        segmentedControl.widthAnchor.constraint(equalToConstant: 100).isActive = true
+    }
+    
+    private func addStatiscticStack() {
+
+        let labelsStackView = UIStackView(arrangedSubviews: [gameStatLabel, firstTimeLabel, secondTimeLabel, thirdsTimeLabel])
+      
+        
         labelsStackView.axis = .vertical
         labelsStackView.spacing = 8
         labelsStackView.alignment = .center
@@ -115,11 +154,9 @@ class MenuViewController: UIViewController {
         view.addSubview(labelsStackView)
         labelsStackView.translatesAutoresizingMaskIntoConstraints = false
         labelsStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        labelsStackView.topAnchor.constraint(equalTo: startButton.bottomAnchor, constant: 50).isActive = true
+        labelsStackView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 50).isActive = true
         
-        deleteButton.backgroundColor = .blue
-        deleteButton.setTitle("DELETE", for: .normal)
-        deleteButton.addTarget(self, action: #selector(deleteAllStats), for: .touchUpInside)
+        
     }
     
     private func fetchStat() {
@@ -150,15 +187,35 @@ class MenuViewController: UIViewController {
             return seconds1 < seconds2
         }
         
-        
-        self.firstTimeLabel.text = sortedTime[0].time
-        self.secondTimeLabel.text = sortedTime[1].time
-        self.thirdsTimeLabel.text = sortedTime[2].time
+        if sortedTime.count == 1 {
+            self.firstTimeLabel.text = sortedTime[0].time
+        } else
+
+        if sortedTime.count == 2 {
+            self.firstTimeLabel.text = sortedTime[0].time
+            self.secondTimeLabel.text = sortedTime[1].time
+        } else
+
+        if sortedTime.count >= 3 {
+            self.firstTimeLabel.text = sortedTime[0].time
+            self.secondTimeLabel.text = sortedTime[1].time
+            self.thirdsTimeLabel.text = sortedTime[2].time
+        }
+
         
     }
     
     @objc func deleteAllStats() {
         StorageManager.shared.cleanData2()
+    }
+    
+    func presentAlert() {
+        let alertController = UIAlertController(title: "Alert", message: "На телефоне должно быть как минимум 12 уникальных фотографий / видео", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default)
+        
+        alertController.addAction(okAction)
+        
+        present(alertController, animated: true)
     }
 
     deinit {

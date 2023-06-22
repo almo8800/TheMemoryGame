@@ -18,7 +18,6 @@
 		75D2F8F72A39A8F900728AEB /* CardsCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D2F8F62A39A8F900728AEB /* CardsCollectionView.swift */; };
 		75D2F8F92A39A9EA00728AEB /* CardsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D2F8F82A39A9EA00728AEB /* CardsCollectionViewCell.swift */; };
 		75D2F8FC2A39D8CE00728AEB /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D2F8FB2A39D8CE00728AEB /* Card.swift */; };
-		75DC7CFF2A3C83B800B5D3DC /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DC7CFE2A3C83B800B5D3DC /* Game.swift */; };
 		75E9CF682A41E205008398EE /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E9CF672A41E205008398EE /* MenuViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,7 +35,6 @@
 		75D2F8F62A39A8F900728AEB /* CardsCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsCollectionView.swift; sourceTree = "<group>"; };
 		75D2F8F82A39A9EA00728AEB /* CardsCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsCollectionViewCell.swift; sourceTree = "<group>"; };
 		75D2F8FB2A39D8CE00728AEB /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
-		75DC7CFE2A3C83B800B5D3DC /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		75E9CF672A41E205008398EE /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -97,7 +95,6 @@
 			children = (
 				75D2F8FB2A39D8CE00728AEB /* Card.swift */,
 				757CF7132A3B14BC00A05D63 /* CardsGenerator.swift */,
-				75DC7CFE2A3C83B800B5D3DC /* Game.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -193,7 +190,6 @@
 				75D2F8EA2A399EFA00728AEB /* The_Memory.xcdatamodeld in Sources */,
 				75E9CF682A41E205008398EE /* MenuViewController.swift in Sources */,
 				75BFC5822A42E83B003C0850 /* StorageManager.swift in Sources */,
-				75DC7CFF2A3C83B800B5D3DC /* Game.swift in Sources */,
 				75D2F8E42A399EFA00728AEB /* GameViewController.swift in Sources */,
 				75D2F8FC2A39D8CE00728AEB /* Card.swift in Sources */,
 				757CF7142A3B14BC00A05D63 /* CardsGenerator.swift in Sources */,
