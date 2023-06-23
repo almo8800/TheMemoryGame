@@ -10,15 +10,15 @@ import CoreData
 
 class MenuViewController: UIViewController {
     
-    var cardsGenerator: CardsGenerator!
+   private var cardsGenerator: CardsGenerator!
     
-    var numberOfCardsinGame = 16 {
+    private var numberOfCardsinGame = 16 {
         didSet {
             CardsGenerator.shared.cardsNumber = numberOfCardsinGame
         }
     }
     
-    var levelTitle: UILabel = {
+    private var levelTitle: UILabel = {
         let label = UILabel()
         label.text = "Gameboard size"
         return label
@@ -27,7 +27,7 @@ class MenuViewController: UIViewController {
     lazy var segmentedControl: UISegmentedControl = {
         let view = UISegmentedControl(items: HardLevel.allValues())
         view.selectedSegmentIndex = 0
-        view.addTarget(self, action: #selector(levelChanged), for: .valueChanged)
+        view.addTarget(self, action: #selector(levelHasChanged), for: .valueChanged)
         return view
     }()
     
@@ -45,12 +45,12 @@ class MenuViewController: UIViewController {
 
  
     
-    var gameStatLabel: UILabel = {
+    var gameStatLabel: UILabel {
         let label = UILabel()
         label.text = "TOP 3 RESULTS"
         label.font = UIFont.boldSystemFont(ofSize: 18)
         return label
-    }()
+    }
     
     var firstTimeLabel: UILabel = {
         let label = UILabel()
@@ -75,7 +75,7 @@ class MenuViewController: UIViewController {
         let button = UIButton()
         button.backgroundColor = .blue
         button.setTitle("DELETE", for: .normal)
-        button.addTarget(self, action: #selector(deleteAllStats), for: .touchUpInside)
+        button.addTarget(MenuViewController.self, action: #selector(deleteAllStats), for: .touchUpInside)
        
         return button
     }()
@@ -83,48 +83,18 @@ class MenuViewController: UIViewController {
     var timeArray: [GameTime] = []
     
     
-    @objc func startButtonTapped() {
-        let sceneDelegate = SceneDelegate.shared
-        sceneDelegate?.window?.rootViewController = GameViewController()
-        
-    }
-    
-    @objc func levelChanged() {
-        switch segmentedControl.selectedSegmentIndex {
-        case 0:
-           numberOfCardsinGame = HardLevel.fourXfour.rawValue
-        case 1:
-           numberOfCardsinGame = HardLevel.fourXsix.rawValue
-        default:
-            print("level high default")
-        }
-    }
+   
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = .systemGray5
-        
-
-        view.addSubview(startButton)
-        startButton.translatesAutoresizingMaskIntoConstraints = false
         
         addLevelStack()
         addStatiscticStack()
-        
-        NSLayoutConstraint.activate([
-            startButton.topAnchor.constraint(equalTo: thirdsTimeLabel.topAnchor, constant: 80),
-            startButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            startButton.heightAnchor.constraint(equalToConstant: 50),
-            startButton.widthAnchor.constraint(equalToConstant: 200)
-        ])
+        addStartButton()
         
         fetchStat()
         sortStat()
-        
-        
-
-
     }
     
     private func addLevelStack() {
@@ -143,20 +113,43 @@ class MenuViewController: UIViewController {
     }
     
     private func addStatiscticStack() {
-
         let labelsStackView = UIStackView(arrangedSubviews: [gameStatLabel, firstTimeLabel, secondTimeLabel, thirdsTimeLabel])
-      
-        
         labelsStackView.axis = .vertical
         labelsStackView.spacing = 8
         labelsStackView.alignment = .center
-        
         view.addSubview(labelsStackView)
+        
         labelsStackView.translatesAutoresizingMaskIntoConstraints = false
         labelsStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         labelsStackView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 50).isActive = true
+    }
+    
+    private func addStartButton() {
+        view.addSubview(startButton)
+        startButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            startButton.topAnchor.constraint(equalTo: thirdsTimeLabel.topAnchor, constant: 80),
+            startButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            startButton.heightAnchor.constraint(equalToConstant: 50),
+            startButton.widthAnchor.constraint(equalToConstant: 200)
+        ])
+    }
+    
+    @objc func startButtonTapped() {
+        let sceneDelegate = SceneDelegate.shared
+        sceneDelegate?.window?.rootViewController = GameViewController()
         
-        
+    }
+    
+    @objc func levelHasChanged() {
+        switch segmentedControl.selectedSegmentIndex {
+        case 0:
+           numberOfCardsinGame = HardLevel.fourXfour.rawValue
+        case 1:
+           numberOfCardsinGame = HardLevel.fourXsix.rawValue
+        default:
+            print("level high default")
+        }
     }
     
     private func fetchStat() {
@@ -189,20 +182,16 @@ class MenuViewController: UIViewController {
         
         if sortedTime.count == 1 {
             self.firstTimeLabel.text = sortedTime[0].time
-        } else
-
-        if sortedTime.count == 2 {
+        } else if
+            sortedTime.count == 2 {
             self.firstTimeLabel.text = sortedTime[0].time
             self.secondTimeLabel.text = sortedTime[1].time
-        } else
-
-        if sortedTime.count >= 3 {
+        } else if
+            sortedTime.count >= 3 {
             self.firstTimeLabel.text = sortedTime[0].time
             self.secondTimeLabel.text = sortedTime[1].time
             self.thirdsTimeLabel.text = sortedTime[2].time
         }
-
-        
     }
     
     @objc func deleteAllStats() {
@@ -212,14 +201,8 @@ class MenuViewController: UIViewController {
     func presentAlert() {
         let alertController = UIAlertController(title: "Alert", message: "На телефоне должно быть как минимум 12 уникальных фотографий / видео", preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default)
-        
         alertController.addAction(okAction)
-        
         present(alertController, animated: true)
     }
 
-    deinit {
-        print("MENU DEINIT")
-    }
-    
 }

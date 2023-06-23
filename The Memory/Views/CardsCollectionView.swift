@@ -7,7 +7,8 @@
 
 import UIKit
 
-class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+
+class CardsCollectionView: UICollectionView {
     
     private var cardsGenerator: CardsGenerator
     var imageArray: [UIImage] = []
@@ -40,11 +41,72 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
         
         showsHorizontalScrollIndicator = false
         showsVerticalScrollIndicator = false
-        
-        
     }
     
+    func checkForMatches(secondFlippedCardTag: Int) {
+
+        let indexPathOfOneCell = IndexPath(row: firstFlippedCardIndex!, section: 0)
+        let cardOneCell = self.cellForItem(at: indexPathOfOneCell) as? CardsCollectionViewCell
+        
+        let indexPathOfTwoCell = IndexPath(row: secondFlippedCardTag, section: 0)
+        let cardTwoCell = self.cellForItem(at: indexPathOfTwoCell) as? CardsCollectionViewCell
+        
+        let cardOneName = cardOneCell?.numberLabel.text
+        let cardTwoName = cardTwoCell?.numberLabel.text
+        
+        if cardOneName == cardTwoName, indexPathOfOneCell != indexPathOfTwoCell {
+            
+            cardOneCell?.isMatched = true
+            cardTwoCell?.isMatched = true
+            
+            cardOneCell?.remove()
+            cardTwoCell?.remove()
+            
+            cardOneCell?.isActive = false
+            cardTwoCell?.isActive = false
+            
+            firstFlippedCardTag = nil
+            firstFlippedCardIndex = nil
+            
+            openCards += 2
+            print("open cards = \(openCards)")
+            
+            if openCards == imageArray.count {
+                gameVCdelegate?.endGame()
+            }
+        } else {
+            
+            cardOneCell?.isFlipped = false
+            cardTwoCell?.isFlipped = false
+            
+            cardOneCell?.flipBack(timeSpeed: 0.3)
+            cardTwoCell?.flipBack(timeSpeed: 0.3)
+            
+            firstFlippedCardTag = nil
+            firstFlippedCardIndex = nil
+       }
+    }
     
+    func setBackAllCellLogic() {
+        let cellQuantity = imageArray.count
+        for index in 0...cellQuantity-1 {
+            let indexPath = IndexPath(row: index, section: 0)
+            let cell = self.cellForItem(at: indexPath) as? CardsCollectionViewCell
+            
+            cell?.flipBack(timeSpeed: 0)
+            cell?.isMatched = false
+            cell?.isFlipped = false
+            cell?.isActive = true
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+}
+
+extension CardsCollectionView: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return CardsGenerator.shared.arrayForGame.count
@@ -74,92 +136,36 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
 
         return cell
     }
+}
+
+extension CardsCollectionView: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        
         let cell = collectionView.cellForItem(at: indexPath) as! CardsCollectionViewCell
-        
-        print(indexPath.section)
-        print(indexPath.item)
-        print("tag os \(cell.tag)")
-        
         // ЕСЛИ КАРТА НЕ ПЕРЕВËРНУТА
         if cell.isFlipped == false {
-            
             cell.flip()
             cell.isFlipped = true
-        
             if firstFlippedCardIndex == nil {
-                
                 firstFlippedCardTag = cell.tag
                 firstFlippedCardIndex = indexPath.row
             } else {
-                // если вторая
                 checkForMatches(secondFlippedCardTag: cell.tag)
-            }
-            
+                   }
         } else {
-            
             cell.flipBack(timeSpeed: 0.3)
             cell.isFlipped = false
         }
     }
-    //
-    func checkForMatches(secondFlippedCardTag: Int) {
-
-        //let cardOneCell = self.viewWithTag(firstFlippedCardTag!) as? CardsCollectionViewCell // проблема что тут получаю nil
-        let indexPathOfOneCell = IndexPath(row: firstFlippedCardIndex!, section: 0)
-        let cardOneCell = self.cellForItem(at: indexPathOfOneCell) as? CardsCollectionViewCell
-
-        let indexPathOfTwoCell = IndexPath(row: secondFlippedCardTag, section: 0)
-        let cardTwoCell = self.cellForItem(at: indexPathOfTwoCell) as? CardsCollectionViewCell
-
-        let cardOneName = cardOneCell?.numberLabel.text
-        let cardTwoName = cardTwoCell?.numberLabel.text
-
     
-       
-        
-        if cardOneName == cardTwoName, indexPathOfOneCell != indexPathOfTwoCell {
-        
-           cardOneCell?.isMatched = true
-           cardTwoCell?.isMatched = true
-            
-        
-           cardOneCell?.remove()
-           cardTwoCell?.remove()
-            
-            cardOneCell?.isActive = false
-            cardTwoCell?.isActive = false
-
-           firstFlippedCardTag = nil
-           firstFlippedCardIndex = nil
-            
-            openCards += 2
-            print("open cards = \(openCards)")
-            
-            if openCards == imageArray.count {
-                gameVCdelegate?.endGame()
-            }
-       } else {
-           
-           cardOneCell?.isFlipped = false
-           cardTwoCell?.isFlipped = false
-           
-           cardOneCell?.flipBack(timeSpeed: 0.3)
-           cardTwoCell?.flipBack(timeSpeed: 0.3)
-           
-           firstFlippedCardTag = nil
-           firstFlippedCardIndex = nil
-           
-       }
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        guard let cell = self.cellForItem(at: indexPath) as? CardsCollectionViewCell else  { fatalError("Cell not found") }
+        return cell.isActive
     }
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
 
-        
         let width = collectionView.frame.width / 5 + 10
         var height: CGFloat = 0
         
@@ -167,40 +173,11 @@ class CardsCollectionView: UICollectionView, UICollectionViewDelegate, UICollect
             height = width * 1.2
         } else {
             height = width
-            
         }
-        
         let itemSize = CGSize(width: width, height: height)
-
 
         return itemSize
     }
     
-  
-    
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        guard let cell = self.cellForItem(at: indexPath) as? CardsCollectionViewCell else  { fatalError("Cell not found") }
-        return cell.isActive
-    }
-    
-
-    
-    func setBackAllCellLogic() {
-        let cellQuantity = imageArray.count
-        for index in 0...cellQuantity-1 {
-            let indexPath = IndexPath(row: index, section: 0)
-            let cell = self.cellForItem(at: indexPath) as? CardsCollectionViewCell
-            
-            cell?.flipBack(timeSpeed: 0)
-            cell?.isMatched = false
-            cell?.isFlipped = false
-            cell?.isActive = true
-        }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
 }
 

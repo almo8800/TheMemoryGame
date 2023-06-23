@@ -14,24 +14,11 @@ protocol GameVCDelegate {
 
 class GameViewController: UIViewController, GameVCDelegate {
     
-    
-    var collectionView = CardsCollectionView()
-    
     var restartButton = UIButton()
+    var timerView = TimerView()
     var menuButton = UIButton()
     
-    var timerLabel = UILabel()
-    var timer: Timer = Timer()
-    var count: Int = 0
-    var timerCountring: Bool = false
-    
-    var timerCounting: Bool = false
-    
-    let myRefreshControl: UIRefreshControl = {
-        let refreshControl = UIRefreshControl()
-        return refreshControl
-    }()
-    
+    var collectionView = CardsCollectionView()
     
     
     override func viewDidLoad() {
@@ -39,13 +26,19 @@ class GameViewController: UIViewController, GameVCDelegate {
         view.backgroundColor = #colorLiteral(red: 0.9753940701, green: 0.9080986381, blue: 0.9533265233, alpha: 1)
         collectionView.gameVCdelegate = self
         
-        timerLabel.text = "00 : 00 : 00"
-        timerLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        
+        view.addSubview(timerView)
         view.addSubview(collectionView)
-        view.addSubview(timerLabel)
+
         view.addSubview(restartButton)
         view.addSubview(menuButton)
+        
+        timerView.translatesAutoresizingMaskIntoConstraints = false
+        timerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        timerView.centerYAnchor.constraint(equalTo: restartButton.centerYAnchor).isActive = true
+        timerView.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        timerView.widthAnchor.constraint(equalToConstant: 110).isActive = true
+        timerView.backgroundColor = #colorLiteral(red: 1, green: 0.7603909373, blue: 0.9043188095, alpha: 1)
+        timerView.layer.cornerRadius = 10
         
         restartButton.setTitle("RESTART", for: .normal)
         restartButton.addTarget(self, action: #selector(restartGame), for: .touchUpInside)
@@ -61,13 +54,20 @@ class GameViewController: UIViewController, GameVCDelegate {
      
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        startStopTimer()
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        setCollectionLayout()
+        setupRestartButton()
+        setupMenuButton()
     }
     
-    func endGame() {
+    override func viewDidAppear(_ animated: Bool) {
+        timerView.startStopTimer()
+    }
+    
+    internal func endGame() {
         print("game end")
-        saveGame(time: timerLabel.text ?? "no timerLabel.text")
+        saveGame(time: timerView.timerLabel.text ?? "no timerLabel.text")
         restartGame()
         
     }
@@ -79,7 +79,7 @@ class GameViewController: UIViewController, GameVCDelegate {
         collectionView.firstFlippedCardIndex = nil
         collectionView.firstFlippedCardTag = nil
         
-        resetTimer()
+        timerView.resetTimer()
     
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3) {
             CardsGenerator.shared.fillArrayForGame()
@@ -90,17 +90,11 @@ class GameViewController: UIViewController, GameVCDelegate {
             self.collectionView.collectionViewLayout.invalidateLayout()
             self.collectionView.layoutSubviews()
             
-            self.startStopTimer()
-            
-        }
         
+            self.timerView.startStopTimer()
+        }
     }
-    
-    @objc func goToMenu() -> Void {
-        let sceneDelegate = SceneDelegate.shared
-        sceneDelegate?.window?.rootViewController = MenuViewController()
-    }
-    
+  
     private func saveGame(time: String) {
         StorageManager.shared.saveTime(time) { [unowned self] time in
             print(time)
@@ -108,60 +102,9 @@ class GameViewController: UIViewController, GameVCDelegate {
     }
     
     
-    func resetTimer() {
-        self.count = 0
-        self.timer.invalidate()
-        self.timerLabel.text = self.makeTimeString(hours: 0, minutes: 0, seconds: 0)
-        self.timerCounting = false
-    }
-    
-    func startStopTimer() {
-        
-        if(timerCounting) {
-            timerCounting = false
-            timer.invalidate()
-        } else {
-            timerCounting = true
-            timer = Timer.scheduledTimer(
-                timeInterval: 1,
-                target: self,
-                selector: #selector(timerCounter),
-                userInfo: nil,
-                repeats: true)
-        }
-    }
-    
-    @objc func timerCounter() -> Void {
-        
-        count = count + 1
-        let time = secondsToHoursMinutesSeconds(seconds: count)
-        let timeString = makeTimeString(hours: time.0, minutes: time.1, seconds: time.2)
-        timerLabel.text = timeString
-        
-    }
-    
-    func secondsToHoursMinutesSeconds(seconds: Int) -> (Int, Int, Int) {
-        return (seconds / 3600, ((seconds % 3600) / 60), ((seconds % 3600) % 60))
-    }
-    
-    func makeTimeString(hours: Int, minutes: Int, seconds: Int) -> String {
-        var timeString = ""
-        timeString += String(format: "%02d", hours)
-        timeString += " : "
-        timeString += String(format: "%02d", minutes)
-        timeString += " : "
-        timeString += String(format: "%02d", seconds)
-
-        return timeString
-    }
-    
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        setCollectionLayout()
-        setUpTimerLayour()
-        setupRestartButton()
-        setupMenuButton()
+    @objc func goToMenu() -> Void {
+        let sceneDelegate = SceneDelegate.shared
+        sceneDelegate?.window?.rootViewController = MenuViewController()
     }
     
     private func setUpConstraints() {
@@ -186,13 +129,7 @@ class GameViewController: UIViewController, GameVCDelegate {
         collectionView.collectionViewLayout = layout
     }
     
-    private func setUpTimerLayour() {
-        timerLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            timerLabel.centerYAnchor.constraint(equalTo: restartButton.centerYAnchor),
-            timerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
-    }
+  
     
     private func setupRestartButton() {
         restartButton.translatesAutoresizingMaskIntoConstraints = false
@@ -214,7 +151,6 @@ class GameViewController: UIViewController, GameVCDelegate {
     
     deinit {
         print("GameViewController DEINIT")
-        dismiss(animated: true)
     }
 }
 
