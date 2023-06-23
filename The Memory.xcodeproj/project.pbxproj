@@ -17,7 +17,6 @@
 		75D2F8EF2A399EFD00728AEB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 75D2F8ED2A399EFD00728AEB /* LaunchScreen.storyboard */; };
 		75D2F8F72A39A8F900728AEB /* CardsCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D2F8F62A39A8F900728AEB /* CardsCollectionView.swift */; };
 		75D2F8F92A39A9EA00728AEB /* CardsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D2F8F82A39A9EA00728AEB /* CardsCollectionViewCell.swift */; };
-		75D2F8FC2A39D8CE00728AEB /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D2F8FB2A39D8CE00728AEB /* Card.swift */; };
 		75E9CF682A41E205008398EE /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E9CF672A41E205008398EE /* MenuViewController.swift */; };
 		75ECBFEC2A456E21000970F0 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75ECBFEB2A456E21000970F0 /* TimerView.swift */; };
 /* End PBXBuildFile section */
@@ -35,7 +34,6 @@
 		75D2F8F02A399EFD00728AEB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		75D2F8F62A39A8F900728AEB /* CardsCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsCollectionView.swift; sourceTree = "<group>"; };
 		75D2F8F82A39A9EA00728AEB /* CardsCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsCollectionViewCell.swift; sourceTree = "<group>"; };
-		75D2F8FB2A39D8CE00728AEB /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		75E9CF672A41E205008398EE /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		75ECBFEB2A456E21000970F0 /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -95,7 +93,6 @@
 		75D2F8FA2A39D8BF00728AEB /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				75D2F8FB2A39D8CE00728AEB /* Card.swift */,
 				757CF7132A3B14BC00A05D63 /* CardsGenerator.swift */,
 			);
 			path = Models;
@@ -194,7 +191,6 @@
 				75E9CF682A41E205008398EE /* MenuViewController.swift in Sources */,
 				75BFC5822A42E83B003C0850 /* StorageManager.swift in Sources */,
 				75D2F8E42A399EFA00728AEB /* GameViewController.swift in Sources */,
-				75D2F8FC2A39D8CE00728AEB /* Card.swift in Sources */,
 				757CF7142A3B14BC00A05D63 /* CardsGenerator.swift in Sources */,
 				75ECBFEC2A456E21000970F0 /* TimerView.swift in Sources */,
 				75D2F8E02A399EFA00728AEB /* AppDelegate.swift in Sources */,
