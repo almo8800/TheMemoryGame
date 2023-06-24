@@ -10,7 +10,7 @@ import UIKit
 import Photos
 import AVFoundation
 
-enum HardLevel: Int {
+enum DifficultyLevel: Int {
     case fourXfour = 16
     case fourXsix = 24
     
@@ -34,94 +34,111 @@ class CardsGenerator {
     var assetsFromLibrary: [PHAsset] = []
     var photosFromLibrary: [UIImage] = []
     
-    var thumbnails: [UIImage] = []
-    
     var cardsNumber: Int = 16 {
         didSet {
             print("Cardsnumber now is \(cardsNumber)")
-            fillArrayForGame()
-            print(arrayForGame.count)
+            //fillArrayForGame()
+            //print(arrayForGame.count)
         }
     }
     
     static let shared = CardsGenerator()
     
     private init() {
-        fetchAssetsFromDevice()
-        convertAssetsToPhotos()
-        fillArrayForGame()
         
+        //fetchAssetsFromDevice()
+       //fillArrayForGame()
     }
     
-    var arrayForGame: [UIImage] = []
-
+    //var arrayForGame: [UIImage] = []
     
-    func fillArrayForGame() {
-       var array: [UIImage] = []
-       let numberOfCards = cardsNumber
-       
     
-            while array.count != numberOfCards {
-                 if let element = photosFromLibrary.randomElement() {
-                     if !array.contains(element) {
-                         array.append(element)
-                         array.append(element)
-                     }
-                     else {
-                         print("Double photo detected")
-                     }
-                 }
-             }
+    func fillArrayForGame(arrayOfConvertedImages: [UIImage]) -> [UIImage] {
       
-        array.shuffle()
-        arrayForGame = array
-        print("HERE IT IS")
-        print(arrayForGame)
+        var arrayImagesForGame: [UIImage] = []
         
-        return
+        let numberOfCycles = cardsNumber / 2
+        var arrayOfConvertedImages = arrayOfConvertedImages
+        arrayOfConvertedImages.shuffle()
+        
+        for index in 0..<numberOfCycles {
+            
+            if let randomIndex = arrayOfConvertedImages.indices.randomElement() {
+                let element = arrayOfConvertedImages.remove(at: randomIndex)
+                arrayImagesForGame.append(element)
+                arrayImagesForGame.append(element)
+            } else {
+                print("problem")
+            }
+        }
+        
+        
+        return arrayImagesForGame
     }
     
-    func fetchAssetsFromDevice() {
-        
-        let semaphore = DispatchSemaphore(value: 0)
+    func fetchAssetsFromDevice(completion: @escaping ([UIImage]) -> Void)  {
         
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
-            if status == .authorized {
-                let fetchOptions = PHFetchOptions()
-                fetchOptions.predicate = NSPredicate(format: "mediaType == %d || mediaType == %d",                                           PHAssetMediaType.image.rawValue,
-                                                     PHAssetMediaType.video.rawValue)
-                fetchOptions.fetchLimit = 100
+            
+            switch status {
+            case .authorized:
+                guard let self = self else { return }
+                let assetsFromLibrary = self.getAssets()
+                let arrayOfImage = self.convertAssetsToPhotos(assets: assetsFromLibrary)
+                let arrayForGame = self.fillArrayForGame(arrayOfConvertedImages: arrayOfImage)
+                completion(arrayForGame)
+            case .denied:
+                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:])
+                completion([])
                 
-                let assets = PHAsset.fetchAssets(with: fetchOptions)
-                print(assets.count)
-                assets.enumerateObjects { (object, _, _) in
-                    print(object)
-                    self?.assetsFromLibrary.append(object)
-                }
+            case .notDetermined, .limited, .restricted:
+                completion([])
+                
+            @unknown default:
+                completion([])
             }
-            semaphore.signal()
         }
-        semaphore.wait()
     }
     
+    func getAssets() -> [PHAsset] {
+        
+        //let semaphore = DispatchSemaphore(value: 0)
+        
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.predicate = NSPredicate(format: "mediaType == %d || mediaType == %d",                                           PHAssetMediaType.image.rawValue,
+                                             PHAssetMediaType.video.rawValue)
+        fetchOptions.fetchLimit = 100
+        
+        let assets = PHAsset.fetchAssets(with: fetchOptions)
+        print(assets.count)
+        
+        var fetchedAssets = [PHAsset]()
+        
+        assets.enumerateObjects { [self] (object, index, _) in
+            fetchedAssets.append(object)
+        }
+        return fetchedAssets
+    }
     
-    func convertAssetsToPhotos() {
+    func convertAssetsToPhotos(assets: [PHAsset]) -> [UIImage] {
         print("photos from assets is \(photosFromLibrary.count)")
         
         let imageManager = PHImageManager.default()
         let requestOptions = PHImageRequestOptions()
         requestOptions.isSynchronous = true
         
-        for asset in assetsFromLibrary { // не нужен ли тут weak self?
+        var convertedAssets: [UIImage] = []
+        
+        for asset in assets { // не нужен ли тут weak self?
             imageManager.requestImage(for: asset, targetSize: CGSize(width: 100, height: 100), contentMode: .aspectFill, options: requestOptions) { image, _ in
                 if let image = image {
-                    self.photosFromLibrary.append(image)
+                    convertedAssets.append(image)
                 }
             }
         }
         
-        print("photos from assests is \(photosFromLibrary.count)")
-    
+      
+        return convertedAssets
     }
 }
 

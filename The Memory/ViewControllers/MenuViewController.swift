@@ -10,7 +10,7 @@ import CoreData
 
 class MenuViewController: UIViewController {
     
-   private var cardsGenerator: CardsGenerator!
+
     
     private var numberOfCardsinGame = 16 {
         didSet {
@@ -25,7 +25,7 @@ class MenuViewController: UIViewController {
     }()
     
     lazy var segmentedControl: UISegmentedControl = {
-        let view = UISegmentedControl(items: HardLevel.allValues())
+        let view = UISegmentedControl(items: DifficultyLevel.allValues())
         view.selectedSegmentIndex = 0
         view.addTarget(self, action: #selector(levelHasChanged), for: .valueChanged)
         return view
@@ -42,8 +42,8 @@ class MenuViewController: UIViewController {
         return button
     }()
     
-
- 
+    
+    
     
     var gameStatLabel: UILabel {
         let label = UILabel()
@@ -76,15 +76,12 @@ class MenuViewController: UIViewController {
         button.backgroundColor = .blue
         button.setTitle("DELETE", for: .normal)
         button.addTarget(MenuViewController.self, action: #selector(deleteAllStats), for: .touchUpInside)
-       
+        
         return button
     }()
     
     var timeArray: [GameTime] = []
     
-    
-   
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGray5
@@ -144,9 +141,9 @@ class MenuViewController: UIViewController {
     @objc func levelHasChanged() {
         switch segmentedControl.selectedSegmentIndex {
         case 0:
-           numberOfCardsinGame = HardLevel.fourXfour.rawValue
+            numberOfCardsinGame = DifficultyLevel.fourXfour.rawValue
         case 1:
-           numberOfCardsinGame = HardLevel.fourXsix.rawValue
+            numberOfCardsinGame = DifficultyLevel.fourXsix.rawValue
         default:
             print("level high default")
         }
@@ -195,7 +192,7 @@ class MenuViewController: UIViewController {
     }
     
     @objc func deleteAllStats() {
-        StorageManager.shared.cleanData2()
+        StorageManager.shared.deleteStats()
     }
     
     func presentAlert() {
@@ -204,5 +201,5 @@ class MenuViewController: UIViewController {
         alertController.addAction(okAction)
         present(alertController, animated: true)
     }
-
+    
 }

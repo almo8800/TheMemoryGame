@@ -27,11 +27,22 @@ class CardsCollectionViewCell: UICollectionViewCell {
         self.isMatched = false
         self.isActive = true
         
-        openImageView.image = image
-        openImageView.alpha = 1.0
-        
         closeImageView.image = UIImage(named: "iphone_pattern")
+      
+        closeImageView.layer.masksToBounds = true
         closeImageView.alpha = 1.0
+        closeImageView.layer.cornerRadius = 6
+        
+        openImageView.image = image
+        openImageView.layer.cornerRadius = 6
+        openImageView.layer.masksToBounds = true
+        openImageView.alpha = 1.0
+        layer.cornerRadius = 10
+        
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOffset = CGSize(width: 1, height: 2.0)
+        layer.shadowRadius = 3.0
+        layer.shadowOpacity = 0.5
         
         numberLabel.text = image.description
     }
@@ -83,17 +94,11 @@ class CardsCollectionViewCell: UICollectionViewCell {
         closeImageView.frame = contentView.frame
         closeImageView.contentMode = .scaleToFill
         
-        setCellLayout()
-        
     }
     
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    func setCellLayout() {
-        
     }
     
 }

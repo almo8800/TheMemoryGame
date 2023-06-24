@@ -8,11 +8,10 @@
 import UIKit
 
 class TimerView: UIView {
-
+    
     var timerLabel = UILabel()
     var timer: Timer = Timer()
     var count: Int = 0
-    var timerCountring: Bool = false
     
     var timerCounting: Bool = false
     
@@ -72,7 +71,7 @@ class TimerView: UIView {
         timeString += String(format: "%02d", minutes)
         timeString += " : "
         timeString += String(format: "%02d", seconds)
-
+        
         return timeString
     }
     

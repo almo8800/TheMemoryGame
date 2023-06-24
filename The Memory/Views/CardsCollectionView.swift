@@ -11,7 +11,7 @@ import UIKit
 class CardsCollectionView: UICollectionView {
     
     private var cardsGenerator: CardsGenerator
-    var imageArray: [UIImage] = []
+    var imageArray: [UIImage]? = []
     
     var firstFlippedCardTag: Int?
     var firstFlippedCardIndex: Int?
@@ -19,14 +19,14 @@ class CardsCollectionView: UICollectionView {
     var openCards = 0
     var gameVCdelegate: GameVCDelegate?
     
-
+    
     init(cardsGenerator: CardsGenerator = .shared) {
         self.cardsGenerator = cardsGenerator
         
         let layout = UICollectionViewFlowLayout()
         super.init(frame: .zero, collectionViewLayout: layout)
         
-        imageArray = cardsGenerator.arrayForGame
+       fetchImages()
         
         
         isScrollEnabled = false
@@ -43,8 +43,17 @@ class CardsCollectionView: UICollectionView {
         showsVerticalScrollIndicator = false
     }
     
+    func fetchImages() {
+        cardsGenerator.fetchAssetsFromDevice(completion: { array in
+            self.imageArray = array
+            DispatchQueue.main.async { [weak self] in
+                self?.reloadData()
+            }
+         })
+    }
+    
     func checkForMatches(secondFlippedCardTag: Int) {
-
+        
         let indexPathOfOneCell = IndexPath(row: firstFlippedCardIndex!, section: 0)
         let cardOneCell = self.cellForItem(at: indexPathOfOneCell) as? CardsCollectionViewCell
         
@@ -71,7 +80,7 @@ class CardsCollectionView: UICollectionView {
             openCards += 2
             print("open cards = \(openCards)")
             
-            if openCards == imageArray.count {
+            if openCards == imageArray?.count {
                 gameVCdelegate?.endGame()
             }
         } else {
@@ -84,12 +93,12 @@ class CardsCollectionView: UICollectionView {
             
             firstFlippedCardTag = nil
             firstFlippedCardIndex = nil
-       }
+        }
     }
     
     func setBackAllCellLogic() {
-        let cellQuantity = imageArray.count
-        for index in 0...cellQuantity-1 {
+    
+        for index in imageArray!.indices{
             let indexPath = IndexPath(row: index, section: 0)
             let cell = self.cellForItem(at: indexPath) as? CardsCollectionViewCell
             
@@ -103,13 +112,13 @@ class CardsCollectionView: UICollectionView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
 }
 
 extension CardsCollectionView: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return CardsGenerator.shared.arrayForGame.count
+        return imageArray?.count ?? 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -117,23 +126,23 @@ extension CardsCollectionView: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CardsCollectionViewCell", for: indexPath) as? CardsCollectionViewCell else { fatalError("Cell not found")}
         
         cell.tag = indexPath.row
-        cell.closeImageView.alpha = 1
-        cell.closeImageView.layer.cornerRadius = 6
-        cell.closeImageView.layer.masksToBounds = true
-        cell.openImageView.alpha = 1
-        cell.openImageView.layer.cornerRadius = 6
-        cell.openImageView.layer.masksToBounds = true
-        cell.layer.cornerRadius = 10
+//        
+//        cell.closeImageView.alpha = 1
+//        cell.closeImageView.layer.cornerRadius = 6
+//        cell.closeImageView.layer.masksToBounds = true
+//        cell.openImageView.alpha = 1
+//        cell.openImageView.layer.cornerRadius = 6
+//        cell.openImageView.layer.masksToBounds = true
+//        cell.layer.cornerRadius = 10
+//        
+//        cell.layer.shadowColor = UIColor.black.cgColor
+//        cell.layer.shadowOffset = CGSize(width: 1, height: 2.0)
+//        cell.layer.shadowRadius = 3.0
+//        cell.layer.shadowOpacity = 0.5
         
-        cell.layer.shadowColor = UIColor.black.cgColor
-        cell.layer.shadowOffset = CGSize(width: 1, height: 2.0)
-        cell.layer.shadowRadius = 3.0
-        cell.layer.shadowOpacity = 0.5
+        let image = imageArray?[indexPath.row]
+        cell.configureCell(image!)
         
-        
-        let image = imageArray[indexPath.row]
-        cell.configureCell(image)
-
         return cell
     }
 }
@@ -151,7 +160,7 @@ extension CardsCollectionView: UICollectionViewDelegate, UICollectionViewDelegat
                 firstFlippedCardIndex = indexPath.row
             } else {
                 checkForMatches(secondFlippedCardTag: cell.tag)
-                   }
+            }
         } else {
             cell.flipBack(timeSpeed: 0.3)
             cell.isFlipped = false
@@ -165,7 +174,7 @@ extension CardsCollectionView: UICollectionViewDelegate, UICollectionViewDelegat
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-
+        
         let width = collectionView.frame.width / 5 + 10
         var height: CGFloat = 0
         
@@ -175,7 +184,7 @@ extension CardsCollectionView: UICollectionViewDelegate, UICollectionViewDelegat
             height = width
         }
         let itemSize = CGSize(width: width, height: height)
-
+        
         return itemSize
     }
     

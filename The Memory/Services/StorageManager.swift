@@ -13,7 +13,7 @@ class StorageManager {
     static let shared = StorageManager()
     
     // MARK: - Core Data stack
-
+    
     private let persistentContainer: NSPersistentContainer = {
         
         let container = NSPersistentContainer(name: "The_Memory")
@@ -31,9 +31,9 @@ class StorageManager {
     private init() {
         viewContext = persistentContainer.viewContext
     }
-
+    
     // MARK: - Core Data Saving support
-
+    
     func saveTime(_ timeString: String, completion: (GameTime) -> Void ) {
         let gameTime = GameTime(context: viewContext)
         gameTime.time = timeString
@@ -52,13 +52,7 @@ class StorageManager {
         }
     }
     
-    func cleanData() {
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = GameTime.fetchRequest()
-        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-        _ = try? viewContext.execute(batchDeleteRequest)
-    }
-    
-    func cleanData2() {
+    func deleteStats() {
         let fetchRequest = GameTime.fetchRequest()
         let items = try? viewContext.fetch(fetchRequest)
         for item in items ?? [] {
@@ -74,7 +68,7 @@ class StorageManager {
             do {
                 try context.save()
             } catch {
-    
+                
                 let nserror = error as NSError
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }

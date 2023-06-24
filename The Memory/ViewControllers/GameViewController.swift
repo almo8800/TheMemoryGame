@@ -28,7 +28,7 @@ class GameViewController: UIViewController, GameVCDelegate {
         
         view.addSubview(timerView)
         view.addSubview(collectionView)
-
+        
         view.addSubview(restartButton)
         view.addSubview(menuButton)
         
@@ -51,17 +51,19 @@ class GameViewController: UIViewController, GameVCDelegate {
         menuButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18.0)
         
         setUpConstraints()
-     
+        setCollectionLayout()
+        setupRestartButton()
+        setupMenuButton()
+        
     }
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        setCollectionLayout()
-        setupRestartButton()
-        setupMenuButton()
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         timerView.startStopTimer()
     }
     
@@ -73,28 +75,28 @@ class GameViewController: UIViewController, GameVCDelegate {
     }
     
     @objc func restartGame() -> Void {
-    
+        
         collectionView.openCards = 0
         collectionView.setBackAllCellLogic()
         collectionView.firstFlippedCardIndex = nil
         collectionView.firstFlippedCardTag = nil
         
         timerView.resetTimer()
-    
+        
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3) {
-            CardsGenerator.shared.fillArrayForGame()
-            self.collectionView.imageArray = CardsGenerator.shared.arrayForGame
+            //CardsGenerator.shared.fillArrayForGame()
+            self.collectionView.fetchImages()
             
             print("new game array \(self.collectionView.imageArray)")
             self.collectionView.reloadData()
             self.collectionView.collectionViewLayout.invalidateLayout()
             self.collectionView.layoutSubviews()
             
-        
+            
             self.timerView.startStopTimer()
         }
     }
-  
+    
     private func saveGame(time: String) {
         StorageManager.shared.saveTime(time) { [unowned self] time in
             print(time)
@@ -129,14 +131,14 @@ class GameViewController: UIViewController, GameVCDelegate {
         collectionView.collectionViewLayout = layout
     }
     
-  
+    
     
     private func setupRestartButton() {
         restartButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             restartButton.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: -40),
             restartButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
-          
+            
         ])
     }
     
@@ -145,7 +147,7 @@ class GameViewController: UIViewController, GameVCDelegate {
         NSLayoutConstraint.activate([
             menuButton.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: -40),
             menuButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-          
+            
         ])
     }
     
