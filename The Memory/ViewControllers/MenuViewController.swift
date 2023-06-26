@@ -10,11 +10,11 @@ import CoreData
 
 class MenuViewController: UIViewController {
     
-
-    
-    private var numberOfCardsinGame = 16 {
+    private var difficultyLevel = CardsGenerator.shared.difficultyLevel {
         didSet {
-            CardsGenerator.shared.cardsNumber = numberOfCardsinGame
+            CardsGenerator.shared.difficultyLevel = difficultyLevel
+//            segmentedControl.selectedSegmentIndex = difficultyLevel == .fourXsix ? 0 : 1
+
         }
     }
     
@@ -24,9 +24,9 @@ class MenuViewController: UIViewController {
         return label
     }()
     
-    lazy var segmentedControl: UISegmentedControl = {
+     lazy var segmentedControl: UISegmentedControl = {
         let view = UISegmentedControl(items: DifficultyLevel.allValues())
-        view.selectedSegmentIndex = 0
+        view.selectedSegmentIndex = difficultyLevel == .fourXfour ? 0 : 1
         view.addTarget(self, action: #selector(levelHasChanged), for: .valueChanged)
         return view
     }()
@@ -42,9 +42,6 @@ class MenuViewController: UIViewController {
         return button
     }()
     
-    
-    
-    
     var gameStatLabel: UILabel {
         let label = UILabel()
         label.text = "TOP 3 RESULTS"
@@ -52,26 +49,26 @@ class MenuViewController: UIViewController {
         return label
     }
     
-    var firstTimeLabel: UILabel = {
+    private var firstTimeLabel: UILabel = {
         let label = UILabel()
         label.text = "play more games"
         
         return label
     }()
     
-    var secondTimeLabel: UILabel = {
+   private var secondTimeLabel: UILabel = {
         let label = UILabel()
         label.text = "play more games"
         return label
     }()
     
-    var thirdsTimeLabel: UILabel = {
+    private var thirdsTimeLabel: UILabel = {
         let label = UILabel()
         label.text = "play more games"
         return label
     }()
     
-    var deleteButton: UIButton = {
+    private var deleteButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .blue
         button.setTitle("DELETE", for: .normal)
@@ -80,7 +77,7 @@ class MenuViewController: UIViewController {
         return button
     }()
     
-    var timeArray: [GameTime] = []
+    private var timeArray: [GameTime] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,9 +87,24 @@ class MenuViewController: UIViewController {
         addStatiscticStack()
         addStartButton()
         
-        fetchStat()
+        fetchStatistics()
         sortStat()
+        
+        CardsGenerator.shared.checkAccessToLib { authStatus in
+            switch authStatus {
+            case .authorized:
+                print(authStatus)
+            case .notDetermined, .restricted, .denied, .limited:
+                DispatchQueue.main.async {
+                self.presentAlert()
+                }
+            @unknown default:
+                fatalError()
+            }
+        }
     }
+    
+   
     
     private func addLevelStack() {
         let levelStackView = UIStackView(arrangedSubviews: [levelTitle, segmentedControl])
@@ -133,23 +145,38 @@ class MenuViewController: UIViewController {
     }
     
     @objc func startButtonTapped() {
-        let sceneDelegate = SceneDelegate.shared
-        sceneDelegate?.window?.rootViewController = GameViewController()
+        CardsGenerator.shared.checkAccessToLib { status in
+            switch status {
+            case .authorized:
+                DispatchQueue.main.async {
+                    let sceneDelegate = SceneDelegate.shared
+                    sceneDelegate?.window?.rootViewController = GameViewController()
+                }
+                
+            case .notDetermined, .restricted, .denied, .limited:
+                DispatchQueue.main.async {
+                self.presentAlert()
+                }
+            @unknown default:
+                fatalError()
+            }
+        }
+     
         
     }
     
     @objc func levelHasChanged() {
         switch segmentedControl.selectedSegmentIndex {
         case 0:
-            numberOfCardsinGame = DifficultyLevel.fourXfour.rawValue
+            difficultyLevel = DifficultyLevel.fourXfour
         case 1:
-            numberOfCardsinGame = DifficultyLevel.fourXsix.rawValue
+            difficultyLevel = DifficultyLevel.fourXsix
         default:
             print("level high default")
         }
     }
     
-    private func fetchStat() {
+    private func fetchStatistics() {
         StorageManager.shared.fetchData { [unowned self] result in
             switch result {
             case .success(let timeList):
@@ -195,9 +222,12 @@ class MenuViewController: UIViewController {
         StorageManager.shared.deleteStats()
     }
     
-    func presentAlert() {
-        let alertController = UIAlertController(title: "Alert", message: "На телефоне должно быть как минимум 12 уникальных фотографий / видео", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default)
+   private func presentAlert() {
+        let alertController = UIAlertController(title: "Будем играть с твоими фото", message: "Предоставьте полный доступ к своей библиотеке", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Настройки", style: .default) { action in
+            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:])
+        }
+       
         alertController.addAction(okAction)
         present(alertController, animated: true)
     }

@@ -11,7 +11,7 @@ class CardsCollectionViewCell: UICollectionViewCell {
     
     static let reuseId = "CardsCollectionViewCell"
     
-    var numberLabel = UILabel()
+    var cardId: String!
     
     var openImageView = UIImageView()
     var closeImageView = UIImageView(image: UIImage(named: "iphone_pattern"))
@@ -44,7 +44,7 @@ class CardsCollectionViewCell: UICollectionViewCell {
         layer.shadowRadius = 3.0
         layer.shadowOpacity = 0.5
         
-        numberLabel.text = image.description
+        cardId = image.description
     }
     
     func flip() {
@@ -84,11 +84,7 @@ class CardsCollectionViewCell: UICollectionViewCell {
         
         addSubview(openImageView)
         addSubview(closeImageView)
-        addSubview(numberLabel)
-        numberLabel.frame = CGRect(x: 10, y: 20, width: 45, height: 20)
-        numberLabel.backgroundColor = .white
-        numberLabel.textColor = .red
-        
+     
         openImageView.frame = contentView.frame
         openImageView.contentMode = .scaleToFill
         closeImageView.frame = contentView.frame

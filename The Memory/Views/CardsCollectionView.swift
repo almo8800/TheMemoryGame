@@ -16,8 +16,14 @@ class CardsCollectionView: UICollectionView {
     var firstFlippedCardTag: Int?
     var firstFlippedCardIndex: Int?
     
-    var openCards = 0
-    var gameVCdelegate: GameVCDelegate?
+    var openCards = 0 {
+        didSet {
+            if openCards == imageArray?.count {
+                gameVCdelegate?.endGame()
+            }
+        }
+    }
+    var gameVCdelegate: GameVCProtocol?
     
     
     init(cardsGenerator: CardsGenerator = .shared) {
@@ -44,12 +50,21 @@ class CardsCollectionView: UICollectionView {
     }
     
     func fetchImages() {
-        cardsGenerator.fetchAssetsFromDevice(completion: { array in
-            self.imageArray = array
-            DispatchQueue.main.async { [weak self] in
-                self?.reloadData()
+        cardsGenerator.generateImagesForGame(completion: { array, status in
+            
+            switch status {
+            case .authorized:
+                self.imageArray = array
+                DispatchQueue.main.async { [weak self] in
+                    self?.reloadData()
+                }
+            case .limited, .denied, .restricted, .notDetermined:
+                
+                print(status)
+            @unknown default:
+                fatalError()
             }
-         })
+        })
     }
     
     func checkForMatches(secondFlippedCardTag: Int) {
@@ -60,8 +75,8 @@ class CardsCollectionView: UICollectionView {
         let indexPathOfTwoCell = IndexPath(row: secondFlippedCardTag, section: 0)
         let cardTwoCell = self.cellForItem(at: indexPathOfTwoCell) as? CardsCollectionViewCell
         
-        let cardOneName = cardOneCell?.numberLabel.text
-        let cardTwoName = cardTwoCell?.numberLabel.text
+        let cardOneName = cardOneCell?.cardId
+        let cardTwoName = cardTwoCell?.cardId
         
         if cardOneName == cardTwoName, indexPathOfOneCell != indexPathOfTwoCell {
             
@@ -78,11 +93,7 @@ class CardsCollectionView: UICollectionView {
             firstFlippedCardIndex = nil
             
             openCards += 2
-            print("open cards = \(openCards)")
             
-            if openCards == imageArray?.count {
-                gameVCdelegate?.endGame()
-            }
         } else {
             
             cardOneCell?.isFlipped = false
@@ -126,20 +137,6 @@ extension CardsCollectionView: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CardsCollectionViewCell", for: indexPath) as? CardsCollectionViewCell else { fatalError("Cell not found")}
         
         cell.tag = indexPath.row
-//        
-//        cell.closeImageView.alpha = 1
-//        cell.closeImageView.layer.cornerRadius = 6
-//        cell.closeImageView.layer.masksToBounds = true
-//        cell.openImageView.alpha = 1
-//        cell.openImageView.layer.cornerRadius = 6
-//        cell.openImageView.layer.masksToBounds = true
-//        cell.layer.cornerRadius = 10
-//        
-//        cell.layer.shadowColor = UIColor.black.cgColor
-//        cell.layer.shadowOffset = CGSize(width: 1, height: 2.0)
-//        cell.layer.shadowRadius = 3.0
-//        cell.layer.shadowOpacity = 0.5
-        
         let image = imageArray?[indexPath.row]
         cell.configureCell(image!)
         
@@ -151,7 +148,7 @@ extension CardsCollectionView: UICollectionViewDelegate, UICollectionViewDelegat
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! CardsCollectionViewCell
-        // ЕСЛИ КАРТА НЕ ПЕРЕВËРНУТА
+        
         if cell.isFlipped == false {
             cell.flip()
             cell.isFlipped = true
@@ -174,19 +171,60 @@ extension CardsCollectionView: UICollectionViewDelegate, UICollectionViewDelegat
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+       calculateItemSize(collectionView, layout: collectionViewLayout)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+
+        return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+       
+        let horizontalSpace: CGFloat
+        let numberOfColumns = CGFloat(cardsGenerator.difficultyLevel.numberOrColumns)
         
-        let width = collectionView.frame.width / 5 + 10
-        var height: CGFloat = 0
+        let spacing = (collectionViewLayout as? UICollectionViewFlowLayout)?.minimumInteritemSpacing ?? 0
+        let itemSize = calculateItemSize(collectionView, layout: collectionViewLayout)
+        if itemSize.width * (numberOfColumns + 1) < collectionView.frame.width {
+            horizontalSpace = (collectionView.frame.width - itemSize.width * numberOfColumns) / 2 - spacing
+        } else {
+            horizontalSpace = CGFloat(0)
+        }
+
+        let insets = UIEdgeInsets(top: 0, left: horizontalSpace, bottom: 0, right: horizontalSpace)
+        
+        return insets
+    }
+    
+    
+    func calculateItemSize(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout) -> CGSize {
+        let spacing = (collectionViewLayout as? UICollectionViewFlowLayout)?.minimumInteritemSpacing ?? 0
+        
+        let numberOfColumns = CGFloat(cardsGenerator.difficultyLevel.numberOrColumns)
+        let numberOfRows = CGFloat(cardsGenerator.difficultyLevel.numberOfRows)
+        
+        let width = collectionView.frame.width / numberOfColumns - spacing
+        
+        let minimumCellHeigh = collectionView.frame.height / numberOfRows - spacing
+        
+        let height: CGFloat
         
         if collectionView.numberOfItems(inSection: 0) == 16 {
+            
             height = width * 1.2
         } else {
             height = width
         }
-        let itemSize = CGSize(width: width, height: height)
+        
+        let finalHeight = min(minimumCellHeigh, height)
+        let itemSize = CGSize(width: min(width, finalHeight), height: finalHeight)
+        
+      
         
         return itemSize
     }
     
+   
 }
 

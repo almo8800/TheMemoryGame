@@ -8,11 +8,11 @@
 import UIKit
 
 
-protocol GameVCDelegate {
+protocol GameVCProtocol {
     func endGame()
 }
 
-class GameViewController: UIViewController, GameVCDelegate {
+class GameViewController: UIViewController, GameVCProtocol {
     
     var restartButton = UIButton()
     var timerView = TimerView()
@@ -32,33 +32,10 @@ class GameViewController: UIViewController, GameVCDelegate {
         view.addSubview(restartButton)
         view.addSubview(menuButton)
         
-        timerView.translatesAutoresizingMaskIntoConstraints = false
-        timerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        timerView.centerYAnchor.constraint(equalTo: restartButton.centerYAnchor).isActive = true
-        timerView.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        timerView.widthAnchor.constraint(equalToConstant: 110).isActive = true
-        timerView.backgroundColor = #colorLiteral(red: 1, green: 0.7603909373, blue: 0.9043188095, alpha: 1)
-        timerView.layer.cornerRadius = 10
-        
-        restartButton.setTitle("RESTART", for: .normal)
-        restartButton.addTarget(self, action: #selector(restartGame), for: .touchUpInside)
-        restartButton.setTitleColor(.systemPurple, for: .normal)
-        restartButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18.0)
-        
-        menuButton.setTitle("MENU", for: .normal)
-        menuButton.addTarget(self, action: #selector(goToMenu), for: .touchUpInside)
-        menuButton.setTitleColor(.systemPurple, for: .normal)
-        menuButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18.0)
-        
-        setUpConstraints()
-        setCollectionLayout()
+        setupTimerView()
+        setupCollectionView()
         setupRestartButton()
         setupMenuButton()
-        
-    }
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
         
     }
     
@@ -83,22 +60,19 @@ class GameViewController: UIViewController, GameVCDelegate {
         
         timerView.resetTimer()
         
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3) {
-            //CardsGenerator.shared.fillArrayForGame()
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
+        
             self.collectionView.fetchImages()
-            
-            print("new game array \(self.collectionView.imageArray)")
             self.collectionView.reloadData()
             self.collectionView.collectionViewLayout.invalidateLayout()
             self.collectionView.layoutSubviews()
-            
-            
+        
             self.timerView.startStopTimer()
         }
     }
     
     private func saveGame(time: String) {
-        StorageManager.shared.saveTime(time) { [unowned self] time in
+        StorageManager.shared.saveTime(time) { time in
             print(time)
         }
     }
@@ -109,31 +83,34 @@ class GameViewController: UIViewController, GameVCDelegate {
         sceneDelegate?.window?.rootViewController = MenuViewController()
     }
     
-    private func setUpConstraints() {
-        setUpCollectionView()
+    private func setupTimerView() {
+        timerView.translatesAutoresizingMaskIntoConstraints = false
+        timerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        timerView.centerYAnchor.constraint(equalTo: restartButton.centerYAnchor).isActive = true
+        timerView.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        timerView.widthAnchor.constraint(equalToConstant: 110).isActive = true
+        timerView.backgroundColor = #colorLiteral(red: 1, green: 0.7603909373, blue: 0.9043188095, alpha: 1)
+        timerView.layer.cornerRadius = 10
     }
     
-    private func setUpCollectionView() {
+    private func setupCollectionView() {
+        let layout = UICollectionViewFlowLayout()
+        collectionView.collectionViewLayout = layout
         NSLayoutConstraint.activate([
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 180),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -80)
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 160),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40)
         ])
     }
-    
-    private func setCollectionLayout() {
-        let layout = UICollectionViewFlowLayout()
-        let itemWidth = (collectionView.frame.width - layout.minimumInteritemSpacing * 3) / 4
-        layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
-        layout.minimumInteritemSpacing = 5
-        layout.minimumLineSpacing = 10
-        collectionView.collectionViewLayout = layout
-    }
-    
-    
-    
+
+
     private func setupRestartButton() {
+        restartButton.setTitle("RESTART", for: .normal)
+        restartButton.addTarget(self, action: #selector(restartGame), for: .touchUpInside)
+        restartButton.setTitleColor(.systemPurple, for: .normal)
+        restartButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18.0)
+        
         restartButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             restartButton.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: -40),
@@ -143,6 +120,11 @@ class GameViewController: UIViewController, GameVCDelegate {
     }
     
     private func setupMenuButton() {
+        menuButton.setTitle("MENU", for: .normal)
+        menuButton.addTarget(self, action: #selector(goToMenu), for: .touchUpInside)
+        menuButton.setTitleColor(.systemPurple, for: .normal)
+        menuButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18.0)
+        
         menuButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             menuButton.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: -40),
@@ -151,6 +133,8 @@ class GameViewController: UIViewController, GameVCDelegate {
         ])
     }
     
+    
+
     deinit {
         print("GameViewController DEINIT")
     }

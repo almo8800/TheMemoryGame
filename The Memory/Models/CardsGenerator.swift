@@ -10,58 +10,99 @@ import UIKit
 import Photos
 import AVFoundation
 
-enum DifficultyLevel: Int {
-    case fourXfour = 16
-    case fourXsix = 24
+enum DifficultyLevel {
+    case fourXfour
+    case fourXsix
     
     static func allValues() -> [String] {
         return [fourXfour, fourXsix].map({$0.description})
     }
-    
-    public var description: String {
+    public var totalNumberOfCards: Int {
+        return numberOfRows*numberOrColumns
+        }
+    public var numberOfRows: Int {
         switch self {
         case .fourXfour:
-            return "4x4"
+            return 4
         case .fourXsix:
-            return "4x6"
+            return 6
         }
     }
-    
+    public var numberOrColumns: Int {
+        switch self {
+        case .fourXfour:
+            return 4
+        case .fourXsix:
+            return 4
+        }
+    }
+        public var description: String {
+       return "\(numberOrColumns)X\(numberOfRows)"
+    }
 }
+
+
 
 class CardsGenerator {
     
     var assetsFromLibrary: [PHAsset] = []
     var photosFromLibrary: [UIImage] = []
+    var difficultyLevel = DifficultyLevel.fourXfour
     
-    var cardsNumber: Int = 16 {
-        didSet {
-            print("Cardsnumber now is \(cardsNumber)")
-            //fillArrayForGame()
-            //print(arrayForGame.count)
+    static let shared = CardsGenerator()
+    private init() {
+        
+    }
+    
+    public func checkAccessToLib(completion: @escaping (PHAuthorizationStatus) -> Void) {
+        
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+            
+            switch status {
+            case .authorized:
+                completion(status)
+            case .denied, .notDetermined, .limited, .restricted:
+                completion(status)
+            @unknown default:
+                completion(.notDetermined)
+            }
         }
     }
     
-    static let shared = CardsGenerator()
-    
-    private init() {
+    func generateImagesForGame(completion: @escaping ([UIImage], PHAuthorizationStatus) -> Void )  {
         
-        //fetchAssetsFromDevice()
-       //fillArrayForGame()
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
+            
+            switch status {
+            case .authorized:
+                guard let self = self else { return }
+                let assetsFromLibrary = self.getAssets()
+                let arrayOfImage = self.convertAssetsToPhotos(assets: assetsFromLibrary)
+                var arrayForGame = self.fillArrayForGame(arrayOfConvertedImages: arrayOfImage)
+                arrayForGame.shuffle()
+                completion(arrayForGame, status)
+            case .denied:
+                completion([], status)
+                
+            case .notDetermined, .limited, .restricted:
+                completion([], status)
+                
+            @unknown default:
+                completion([], status)
+            }
+        }
     }
-    
-    //var arrayForGame: [UIImage] = []
     
     
     func fillArrayForGame(arrayOfConvertedImages: [UIImage]) -> [UIImage] {
       
         var arrayImagesForGame: [UIImage] = []
         
-        let numberOfCycles = cardsNumber / 2
+        let numberOfCycles = difficultyLevel.totalNumberOfCards / 2
         var arrayOfConvertedImages = arrayOfConvertedImages
         arrayOfConvertedImages.shuffle()
         
-        for index in 0..<numberOfCycles {
+        for _ in 0..<numberOfCycles {
             
             if let randomIndex = arrayOfConvertedImages.indices.randomElement() {
                 let element = arrayOfConvertedImages.remove(at: randomIndex)
@@ -72,41 +113,15 @@ class CardsGenerator {
             }
         }
         
-        
         return arrayImagesForGame
     }
     
-    func fetchAssetsFromDevice(completion: @escaping ([UIImage]) -> Void)  {
-        
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
-            
-            switch status {
-            case .authorized:
-                guard let self = self else { return }
-                let assetsFromLibrary = self.getAssets()
-                let arrayOfImage = self.convertAssetsToPhotos(assets: assetsFromLibrary)
-                let arrayForGame = self.fillArrayForGame(arrayOfConvertedImages: arrayOfImage)
-                completion(arrayForGame)
-            case .denied:
-                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:])
-                completion([])
-                
-            case .notDetermined, .limited, .restricted:
-                completion([])
-                
-            @unknown default:
-                completion([])
-            }
-        }
-    }
     
     func getAssets() -> [PHAsset] {
-        
-        //let semaphore = DispatchSemaphore(value: 0)
-        
+
         let fetchOptions = PHFetchOptions()
         fetchOptions.predicate = NSPredicate(format: "mediaType == %d || mediaType == %d",                                           PHAssetMediaType.image.rawValue,
-                                             PHAssetMediaType.video.rawValue)
+               PHAssetMediaType.video.rawValue)
         fetchOptions.fetchLimit = 100
         
         let assets = PHAsset.fetchAssets(with: fetchOptions)
@@ -114,14 +129,13 @@ class CardsGenerator {
         
         var fetchedAssets = [PHAsset]()
         
-        assets.enumerateObjects { [self] (object, index, _) in
+        assets.enumerateObjects { (object, index, _) in
             fetchedAssets.append(object)
         }
         return fetchedAssets
     }
     
     func convertAssetsToPhotos(assets: [PHAsset]) -> [UIImage] {
-        print("photos from assets is \(photosFromLibrary.count)")
         
         let imageManager = PHImageManager.default()
         let requestOptions = PHImageRequestOptions()
@@ -129,7 +143,7 @@ class CardsGenerator {
         
         var convertedAssets: [UIImage] = []
         
-        for asset in assets { // не нужен ли тут weak self?
+        for asset in assets {
             imageManager.requestImage(for: asset, targetSize: CGSize(width: 100, height: 100), contentMode: .aspectFill, options: requestOptions) { image, _ in
                 if let image = image {
                     convertedAssets.append(image)
