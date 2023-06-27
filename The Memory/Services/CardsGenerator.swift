@@ -111,24 +111,29 @@ class CardsGenerator {
         let assets = PHAsset.fetchAssets(with: fetchOptions)
         print(assets.count)
         
-        
         assets.enumerateObjects { (object, index, _) in
             
             print(object.mediaType)
-            if object.mediaType == .image {
-                
+            switch object.mediaType {
+            case .image:
                 self.convertFromPhotoAssets(object: object) { image in
-                    convertedImagesFromAssets.append(image)
+                        convertedImagesFromAssets.append(image)
+                }
+            case .video:
+                self.convertFromVideoAssets(asset: object) { image in
+
+                        convertedImagesFromAssets.append(image)
                 }
                 
-            }
-            else if object.mediaType == .video {
-                self.convertFromVideoAssets(asset: object) { image in
-                    convertedImagesFromAssets.append(image)
-                }
+            case .audio, .unknown:
+                assertionFailure("wrong type")
+                
+            @unknown default:
+                assertionFailure("wrong type")
             }
         }
-        completion(convertedImagesFromAssets)
+
+            completion(convertedImagesFromAssets)
     }
     
     func convertFromVideoAssets(asset: PHAsset, completion: @escaping (UIImage) -> Void) {

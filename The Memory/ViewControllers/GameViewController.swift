@@ -144,10 +144,6 @@ class GameViewController: UIViewController, GameVCProtocol {
             
         ])
     }
-    
- 
-    
-    
 
     deinit {
         print("GameViewController DEINIT")
