@@ -19,7 +19,7 @@ enum DifficultyLevel {
     }
     public var totalNumberOfCards: Int {
         return numberOfRows*numberOrColumns
-        }
+    }
     public var numberOfRows: Int {
         switch self {
         case .fourXfour:
@@ -36,8 +36,8 @@ enum DifficultyLevel {
             return 4
         }
     }
-        public var description: String {
-       return "\(numberOrColumns)X\(numberOfRows)"
+    public var description: String {
+        return "\(numberOrColumns)X\(numberOfRows)"
     }
 }
 
@@ -77,7 +77,7 @@ class CardsGenerator {
         }
     }
     
-    func generateImagesForGame(completion: @escaping ([UIImage], PHAuthorizationStatus) -> Void )  {
+    public func generateImagesForGame(completion: @escaping ([UIImage], PHAuthorizationStatus) -> Void )  {
         
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
             switch status {
@@ -90,10 +90,10 @@ class CardsGenerator {
                 var arrayForGame = self.fillArrayForGame(arrayOfConvertedImages: arrayOfImage)
                 arrayForGame.shuffle()
                 completion(arrayForGame, status)
-       
+                
             case .denied, .limited, .notDetermined, .restricted:
                 completion([], status)
-    
+                
             @unknown default:
                 completion([], status)
             }
@@ -101,7 +101,7 @@ class CardsGenerator {
     }
     
     
-    func fetchAssets(completion: @escaping ([UIImage]) -> Void ) {
+    private func fetchAssets(completion: @escaping ([UIImage]) -> Void ) {
         var convertedImagesFromAssets: [UIImage] = []
         let fetchOptions = PHFetchOptions()
         fetchOptions.predicate = NSPredicate(format: "mediaType == %d || mediaType == %d",
@@ -117,12 +117,12 @@ class CardsGenerator {
             switch object.mediaType {
             case .image:
                 self.convertFromPhotoAssets(object: object) { image in
-                        convertedImagesFromAssets.append(image)
+                    convertedImagesFromAssets.append(image)
                 }
             case .video:
                 self.convertFromVideoAssets(asset: object) { image in
-
-                        convertedImagesFromAssets.append(image)
+                    
+                    convertedImagesFromAssets.append(image)
                 }
                 
             case .audio, .unknown:
@@ -132,11 +132,11 @@ class CardsGenerator {
                 assertionFailure("wrong type")
             }
         }
-
-            completion(convertedImagesFromAssets)
+        
+        completion(convertedImagesFromAssets)
     }
     
-    func convertFromVideoAssets(asset: PHAsset, completion: @escaping (UIImage) -> Void) {
+    private func convertFromVideoAssets(asset: PHAsset, completion: @escaping (UIImage) -> Void) {
         print("we catch video")
         let asset = asset
         let options = PHVideoRequestOptions()
@@ -163,7 +163,7 @@ class CardsGenerator {
         group.wait()
     }
     
-    func convertFromPhotoAssets(object: PHAsset, completion: @escaping (UIImage) -> Void) {
+    private func convertFromPhotoAssets(object: PHAsset, completion: @escaping (UIImage) -> Void) {
         print("we catch image")
         let imageManager = PHImageManager.default()
         let requestOptions = PHImageRequestOptions()
@@ -176,8 +176,8 @@ class CardsGenerator {
     }
     
     
-    func fillArrayForGame(arrayOfConvertedImages: [UIImage]) -> [UIImage] {
-      
+    private func fillArrayForGame(arrayOfConvertedImages: [UIImage]) -> [UIImage] {
+        
         var arrayImagesForGame: [UIImage] = []
         
         let numberOfCycles = difficultyLevel.totalNumberOfCards / 2
@@ -197,7 +197,6 @@ class CardsGenerator {
         
         return arrayImagesForGame
     }
-    
     
 }
 

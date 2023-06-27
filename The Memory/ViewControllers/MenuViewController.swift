@@ -40,7 +40,7 @@ class MenuViewController: UIViewController {
         return button
     }()
     
-    var gameStatLabel: UILabel {
+    private var gameStatLabel: UILabel {
         let label = UILabel()
         label.text = "TOP 3 RESULTS"
         label.font = UIFont.boldSystemFont(ofSize: 18)
@@ -87,7 +87,7 @@ class MenuViewController: UIViewController {
         
         fetchStatistics()
         sortStat()
-    
+        
     }
     
     
@@ -142,9 +142,9 @@ class MenuViewController: UIViewController {
                         sceneDelegate?.window?.rootViewController = GameViewController()
                         return
                     }
-                 
+                    
                 }
-     
+                
             case .notDetermined, .restricted, .denied, .limited:
                 DispatchQueue.main.async {
                     self.presentAlertAccess()
