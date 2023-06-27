@@ -52,6 +52,7 @@
 		75BFC5802A42E81B003C0850 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				757CF7132A3B14BC00A05D63 /* CardsGenerator.swift */,
 				75BFC5812A42E83B003C0850 /* StorageManager.swift */,
 			);
 			path = Services;
@@ -79,7 +80,6 @@
 				75D2F8DF2A399EFA00728AEB /* AppDelegate.swift */,
 				75D2F8E12A399EFA00728AEB /* SceneDelegate.swift */,
 				75BFC5802A42E81B003C0850 /* Services */,
-				75D2F8FA2A39D8BF00728AEB /* Models */,
 				75E9CF662A41E147008398EE /* ViewControllers */,
 				75E9CF652A41E13C008398EE /* Views */,
 				75D2F8EB2A399EFD00728AEB /* Assets.xcassets */,
@@ -88,14 +88,6 @@
 				75D2F8E82A399EFA00728AEB /* The_Memory.xcdatamodeld */,
 			);
 			path = "The Memory";
-			sourceTree = "<group>";
-		};
-		75D2F8FA2A39D8BF00728AEB /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				757CF7132A3B14BC00A05D63 /* CardsGenerator.swift */,
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		75E9CF652A41E13C008398EE /* Views */ = {

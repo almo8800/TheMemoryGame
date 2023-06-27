@@ -8,17 +8,17 @@
 import UIKit
 
 
-protocol GameVCProtocol {
+protocol GameVCProtocol: AnyObject {
     func endGame()
 }
 
 class GameViewController: UIViewController, GameVCProtocol {
     
-    var restartButton = UIButton()
-    var timerView = TimerView()
-    var menuButton = UIButton()
+    private var restartButton = UIButton()
+    private var timerView = TimerView()
+    private var menuButton = UIButton()
     
-    var collectionView = CardsCollectionView()
+    private var collectionView = CardsCollectionView()
     
     
     override func viewDidLoad() {
@@ -37,6 +37,17 @@ class GameViewController: UIViewController, GameVCProtocol {
         setupRestartButton()
         setupMenuButton()
         
+   
+        NotificationCenter.default.addObserver(self, selector: #selector(pauseTimer), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(resumeTimer), name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+   @objc func pauseTimer() {
+        timerView.startStopTimer()
+    }
+    
+   @objc func resumeTimer() {
+        timerView.startStopTimer()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -44,11 +55,11 @@ class GameViewController: UIViewController, GameVCProtocol {
         timerView.startStopTimer()
     }
     
+
     internal func endGame() {
         print("game end")
         saveGame(time: timerView.timerLabel.text ?? "no timerLabel.text")
         restartGame()
-        
     }
     
     @objc func restartGame() -> Void {
@@ -60,7 +71,7 @@ class GameViewController: UIViewController, GameVCProtocol {
         
         timerView.resetTimer()
         
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
         
             self.collectionView.fetchImages()
             self.collectionView.reloadData()
@@ -102,6 +113,7 @@ class GameViewController: UIViewController, GameVCProtocol {
             collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 160),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40)
         ])
+        
     }
 
 
@@ -132,6 +144,8 @@ class GameViewController: UIViewController, GameVCProtocol {
             
         ])
     }
+    
+ 
     
     
 

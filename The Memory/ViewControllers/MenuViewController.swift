@@ -13,8 +13,6 @@ class MenuViewController: UIViewController {
     private var difficultyLevel = CardsGenerator.shared.difficultyLevel {
         didSet {
             CardsGenerator.shared.difficultyLevel = difficultyLevel
-//            segmentedControl.selectedSegmentIndex = difficultyLevel == .fourXsix ? 0 : 1
-
         }
     }
     
@@ -24,7 +22,7 @@ class MenuViewController: UIViewController {
         return label
     }()
     
-     lazy var segmentedControl: UISegmentedControl = {
+    lazy var segmentedControl: UISegmentedControl = {
         let view = UISegmentedControl(items: DifficultyLevel.allValues())
         view.selectedSegmentIndex = difficultyLevel == .fourXfour ? 0 : 1
         view.addTarget(self, action: #selector(levelHasChanged), for: .valueChanged)
@@ -56,7 +54,7 @@ class MenuViewController: UIViewController {
         return label
     }()
     
-   private var secondTimeLabel: UILabel = {
+    private var secondTimeLabel: UILabel = {
         let label = UILabel()
         label.text = "play more games"
         return label
@@ -89,22 +87,9 @@ class MenuViewController: UIViewController {
         
         fetchStatistics()
         sortStat()
-        
-        CardsGenerator.shared.checkAccessToLib { authStatus in
-            switch authStatus {
-            case .authorized:
-                print(authStatus)
-            case .notDetermined, .restricted, .denied, .limited:
-                DispatchQueue.main.async {
-                self.presentAlert()
-                }
-            @unknown default:
-                fatalError()
-            }
-        }
+    
     }
     
-   
     
     private func addLevelStack() {
         let levelStackView = UIStackView(arrangedSubviews: [levelTitle, segmentedControl])
@@ -145,23 +130,30 @@ class MenuViewController: UIViewController {
     }
     
     @objc func startButtonTapped() {
-        CardsGenerator.shared.checkAccessToLib { status in
+        CardsGenerator.shared.checkAccessToLib { status, assetsCount in
+            
             switch status {
             case .authorized:
                 DispatchQueue.main.async {
-                    let sceneDelegate = SceneDelegate.shared
-                    sceneDelegate?.window?.rootViewController = GameViewController()
+                    if assetsCount < 12 {
+                        self.presentAlertQuantity()
+                    } else {
+                        let sceneDelegate = SceneDelegate.shared
+                        sceneDelegate?.window?.rootViewController = GameViewController()
+                        return
+                    }
+                 
                 }
-                
+     
             case .notDetermined, .restricted, .denied, .limited:
                 DispatchQueue.main.async {
-                self.presentAlert()
+                    self.presentAlertAccess()
                 }
             @unknown default:
                 fatalError()
             }
         }
-     
+        
         
     }
     
@@ -218,18 +210,29 @@ class MenuViewController: UIViewController {
         }
     }
     
-    @objc func deleteAllStats() {
-        StorageManager.shared.deleteStats()
-    }
-    
-   private func presentAlert() {
+    private func presentAlertAccess() {
         let alertController = UIAlertController(title: "Будем играть с твоими фото", message: "Предоставьте полный доступ к своей библиотеке", preferredStyle: .alert)
         let okAction = UIAlertAction(title: "Настройки", style: .default) { action in
             UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:])
         }
-       
+        
         alertController.addAction(okAction)
         present(alertController, animated: true)
+    }
+    
+    private func presentAlertQuantity() {
+        let alertController = UIAlertController(title: "Не достаточно контента", message: "Для работы игры необходимо как минимум 12 фото и видео в вашей библиотеке", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Понял, добавлю", style: .default) { action in
+            print("надо добавить фото")
+        }
+        
+        alertController.addAction(okAction)
+        present(alertController, animated: true)
+    }
+    
+    // просто здесь для того, чтобы если что очистить хранилище рекордов времени
+    @objc func deleteAllStats() {
+        StorageManager.shared.deleteStats()
     }
     
 }

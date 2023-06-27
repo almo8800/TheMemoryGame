@@ -13,9 +13,8 @@ class CardsCollectionViewCell: UICollectionViewCell {
     
     var cardId: String!
     
-    var openImageView = UIImageView()
-    var closeImageView = UIImageView(image: UIImage(named: "iphone_pattern"))
-    
+    private var openImageView = UIImageView()
+    private var closeImageView = UIImageView(image: UIImage(named: "iphone_pattern"))
     
     var isFlipped: Bool!
     var isMatched: Bool!
@@ -28,7 +27,6 @@ class CardsCollectionViewCell: UICollectionViewCell {
         self.isActive = true
         
         closeImageView.image = UIImage(named: "iphone_pattern")
-      
         closeImageView.layer.masksToBounds = true
         closeImageView.alpha = 1.0
         closeImageView.layer.cornerRadius = 6

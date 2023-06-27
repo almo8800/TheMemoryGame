@@ -23,7 +23,7 @@ class CardsCollectionView: UICollectionView {
             }
         }
     }
-    var gameVCdelegate: GameVCProtocol?
+    weak var gameVCdelegate: GameVCProtocol?
     
     
     init(cardsGenerator: CardsGenerator = .shared) {
@@ -32,7 +32,7 @@ class CardsCollectionView: UICollectionView {
         let layout = UICollectionViewFlowLayout()
         super.init(frame: .zero, collectionViewLayout: layout)
         
-       fetchImages()
+        fetchImages()
         
         
         isScrollEnabled = false
@@ -50,16 +50,16 @@ class CardsCollectionView: UICollectionView {
     }
     
     func fetchImages() {
-        cardsGenerator.generateImagesForGame(completion: { array, status in
+        
+        cardsGenerator.generateImagesForGame(completion: { [weak self] array, status in
             
             switch status {
             case .authorized:
-                self.imageArray = array
+                self?.imageArray = array
                 DispatchQueue.main.async { [weak self] in
                     self?.reloadData()
                 }
             case .limited, .denied, .restricted, .notDetermined:
-                
                 print(status)
             @unknown default:
                 fatalError()
@@ -108,7 +108,7 @@ class CardsCollectionView: UICollectionView {
     }
     
     func setBackAllCellLogic() {
-    
+        
         for index in imageArray!.indices{
             let indexPath = IndexPath(row: index, section: 0)
             let cell = self.cellForItem(at: indexPath) as? CardsCollectionViewCell
@@ -171,16 +171,16 @@ extension CardsCollectionView: UICollectionViewDelegate, UICollectionViewDelegat
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-       calculateItemSize(collectionView, layout: collectionViewLayout)
+        calculateItemSize(collectionView, layout: collectionViewLayout)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-
+        
         return 0
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-       
+        
         let horizontalSpace: CGFloat
         let numberOfColumns = CGFloat(cardsGenerator.difficultyLevel.numberOrColumns)
         
@@ -191,7 +191,7 @@ extension CardsCollectionView: UICollectionViewDelegate, UICollectionViewDelegat
         } else {
             horizontalSpace = CGFloat(0)
         }
-
+        
         let insets = UIEdgeInsets(top: 0, left: horizontalSpace, bottom: 0, right: horizontalSpace)
         
         return insets
@@ -220,11 +220,11 @@ extension CardsCollectionView: UICollectionViewDelegate, UICollectionViewDelegat
         let finalHeight = min(minimumCellHeigh, height)
         let itemSize = CGSize(width: min(width, finalHeight), height: finalHeight)
         
-      
+        
         
         return itemSize
     }
     
-   
+    
 }
 
