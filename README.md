@@ -1,5 +1,5 @@
 # The Memory Game :bulb:
-Угадываем пары карточек состоящие из **пользовательского контента** - фото и видео с устройства. 
+Guessing pairs of card from **user content** - photo and video from device. 
 
 **Stack** :wrench: 
 - UIKit
