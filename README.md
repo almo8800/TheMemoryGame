@@ -1,0 +1,13 @@
+# The Memory Game :bulb:
+Guessing pairs of card from **user content** - photo and video from device. 
+
+**Stack** :wrench: 
+- UIKit
+- Photos
+- AVFoundation
+- CoreData
+- Grand Central Dispatch
+---
+
+<img src="https://github.com/almo8800/TheMemoryGame/assets/120101941/d5e01c05-43bd-4f6a-be3d-00b45dc0bfd6" width="250" height="500" />
+<img src="https://github.com/almo8800/TheMemoryGame/assets/120101941/a50538fe-25a5-407a-b18f-0ff4f8392104" width="250" height="500" />
