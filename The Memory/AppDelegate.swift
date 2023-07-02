@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  The Memory
 //
-//  Created by Andrei on 14/6/23.
+//  Created by Alexey Mokrousov on 14/6/23.
 //
 
 import UIKit

@@ -2,7 +2,7 @@
 //  StorageManager.swift
 //  The Memory
 //
-//  Created by Andrei on 21/6/23.
+//  Created by Alexey Mokrousov on 21/6/23.
 //
 
 import Foundation

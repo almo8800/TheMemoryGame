@@ -2,7 +2,7 @@
 //  MenuViewController.swift
 //  The Memory
 //
-//  Created by Andrei on 20/6/23.
+//  Created by Alexey Mokrousov on 20/6/23.
 //
 import Foundation
 import UIKit

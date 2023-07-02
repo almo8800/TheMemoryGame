@@ -2,7 +2,7 @@
 //  TimerView.swift
 //  The Memory
 //
-//  Created by Andrei on 23/6/23.
+//  Created by Alexey Mokrousov on 23/6/23.
 //
 
 import UIKit

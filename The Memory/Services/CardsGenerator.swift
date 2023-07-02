@@ -2,7 +2,7 @@
 //  CardsGenerator.swift
 //  The Memory
 //
-//  Created by Andrei on 15/6/23.
+//  Created by Alexey Mokrousov on 15/6/23.
 //
 
 import Foundation
